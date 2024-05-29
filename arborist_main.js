@@ -3,7 +3,7 @@ import Graph from "graphology";
 import Sigma from "sigma";
 */
 
-import forceLayout from './node_modules/graphology-layout-force';
+import ForceSupervisor from "graphology-layout-force/worker";
 
 /* functions */
 function cssModify(cssValue,funcToApply) {
@@ -153,5 +153,6 @@ graph.nodes().forEach((node, i) => {
     graph.setNodeAttribute(node, "y", 100 * Math.sin(angle));
 });
 
-
+const layout = new ForceSupervisor(graph);
+layout.start();
 
