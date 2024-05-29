@@ -3,7 +3,7 @@ import Graph from "graphology";
 import Sigma from "sigma";
 */
 
-import forceLayout from 'graphology-layout-force';
+import forceLayout from './node_modules/graphology-layout-force';
 
 /* functions */
 function cssModify(cssValue,funcToApply) {

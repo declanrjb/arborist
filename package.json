@@ -1,0 +1,25 @@
+{
+  "name": "arborist",
+  "version": "1.0.0",
+  "description": "visualizations for webscraping",
+  "main": "arborist_main.js",
+  "scripts": {
+    "test": "NA"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/declanrjb/arborist.git"
+  },
+  "keywords": [
+    "NA"
+  ],
+  "author": "Declan Bradley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/declanrjb/arborist/issues"
+  },
+  "homepage": "https://github.com/declanrjb/arborist#readme",
+  "dependencies": {
+    "graphology-layout-force": "^0.2.4"
+  }
+}
