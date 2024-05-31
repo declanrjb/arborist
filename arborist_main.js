@@ -3,8 +3,6 @@ import Graph from "graphology";
 import Sigma from "sigma";
 */
 
-import ForceSupervisor from "graphology-layout-force/worker";
-
 /* functions */
 function cssModify(cssValue,funcToApply) {
     var rawValue = parseFloat(cssValue);
@@ -55,7 +53,6 @@ function nextAvailableKey(graph) {
 
 function drawDiv(graph,divToDraw) {
 	var newKey = nextAvailableKey(graph);
-	console.log(divToDraw);
 	var newLabel = concatVec(Object.values(divToDraw.classList));
 	var newNode = graph.addNode(newKey, {label: newLabel, size: 5, color: 'black'});
 	return newNode;
@@ -80,14 +77,13 @@ function articulateChildren(rootDiv) {
 	}
 }
 
-function connectToSet(graph,sourceNode,set,sizeToSet=2,colorToSet='black') {
+function connectToSet(graph,sourceNode,set,sizeToSet=1,colorToSet='black') {
 	for (var j=0; j<set.length; j++) {
-		graph.addEdge(sourceNode, set[j], {size: sizeToSet, color: colorToSet})
+		graph.addEdge(sourceNode, set[j], {size: sizeToSet, color: colorToSet});
 	}
 }
 
-function mapRecursive(graph,rootDiv) {
-	console.log(rootDiv);
+function mapRecursive(graph,rootDiv,rootNode,parentX,parentY,radius,startAngle) {
 	var allChildren = rootDiv.children;
 	if (allChildren.length == 0) {
 		console.log('leaf');
@@ -96,14 +92,19 @@ function mapRecursive(graph,rootDiv) {
 		var drawnNodes = [];
 		for (var i=0; i<allChildren.length; i++) {
 			var currChild = allChildren[i];
-			console.log(currChild);
 			var currDrawnNode = drawDiv(graph,currChild);
 			drawnNodes.push(currDrawnNode);
 
-			var childNodes = mapRecursive(graph,currChild);
+			const angle = (i / Math.max(...[allChildren.length-1,1])) * (1 * Math.PI) + startAngle + (Math.PI / 2);
+			console.log(startAngle);
 
-			connectToSet(graph,currDrawnNode,childNodes);
+		    graph.setNodeAttribute(currDrawnNode, "x", parentX + (radius * Math.cos(angle)));
+		    graph.setNodeAttribute(currDrawnNode, "y", parentY + (radius * Math.sin(angle)));
+
+			var childNodes = mapRecursive(graph,currChild,currDrawnNode,parentX + (radius * Math.cos(angle)),parentY + (radius * Math.sin(angle)), radius/1.5, angle);
 		}
+		connectToSet(graph,rootNode,drawnNodes);
+
 		return drawnNodes;
 	}
 }
@@ -111,24 +112,38 @@ function mapRecursive(graph,rootDiv) {
 function mapWithRoot(graph,rootDiv,rootName='body') {
 	var rootNode = drawDiv(graph,rootDiv);
 	graph.setNodeAttribute(rootNode,'label',rootName);
+	graph.setNodeAttribute(rootNode,'x',0);
+	graph.setNodeAttribute(rootNode,'y',0);
 	var allChildren = rootDiv.children;
+	
 	if (allChildren.length == 0) {
 		console.log('leaf');
+		return [];
 	} else {
 		var drawnNodes = [];
 		for (var i=0; i<allChildren.length; i++) {
 			var currChild = allChildren[i];
-
 			var currDrawnNode = drawDiv(graph,currChild);
 			drawnNodes.push(currDrawnNode);
 
-			var childNodes = mapRecursive(graph,currChild);
-
-			connectToSet(graph,currDrawnNode,childNodes);
+			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (1 * Math.PI));
+		    graph.setNodeAttribute(currDrawnNode, "x", 0 + (100 * Math.cos(angle)));
+		    graph.setNodeAttribute(currDrawnNode, "y", 0 + (100 * Math.sin(angle)));
+		    
+			var childNodes = mapRecursive(graph,currChild,currDrawnNode,0,0,(100/1.5),angle);
+			
 		}
-		connectToSet(graph,rootNode,drawnNodes);
+		connectToSet(graph,rootNode,drawnNodes); 
+		/*
+		for (var k=0; k<drawnNodes.length; k++) {
+			const angle = (k * 2 * Math.PI) / drawnNodes.length;
+		    graph.setNodeAttribute(node, "x",  * Math.cos(angle));
+		    graph.setNodeAttribute(node, "y", i * Math.sin(angle));
+		}
+		*/
+
+		return rootNode;
 	}
-	return rootNode;
 }
 
 /* create the graph */
@@ -146,13 +161,15 @@ graph.setNodeAttribute(rootNode,'color','red');
 
 
 
-/* set the graph layout */
+/*
 graph.nodes().forEach((node, i) => {
+	console.log(node.x);
+	
     const angle = (i * 2 * Math.PI) / graph.order;
     graph.setNodeAttribute(node, "x", 100 * Math.cos(angle));
     graph.setNodeAttribute(node, "y", 100 * Math.sin(angle));
+    
 });
+*/
 
-const layout = new ForceSupervisor(graph);
-layout.start();
 
