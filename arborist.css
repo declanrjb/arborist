@@ -1,6 +1,29 @@
 .chart-container {
 	width: 100%;
 	display: block;
-	height: 1000px;
-	border: 2px solid black;
+	height: 100%;
 }
+
+.column {
+	height: 100%;
+	float: left;
+}
+
+#col-chart {
+	width: 75%;
+}
+
+#col-readouts {
+	width: 25%;
+}
+
+.html-readout {
+	width: calc(100% - 20px);
+	height: fit-content;
+	background-color: black;
+	color: white;
+	padding: 10px;
+	border-radius: 10px;
+	margin: 10px;
+}
+

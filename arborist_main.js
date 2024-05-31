@@ -51,10 +51,22 @@ function nextAvailableKey(graph) {
 	}
 }
 
-function drawDiv(graph,divToDraw) {
+function generateDivLabel(div) {
+	if (div.hasAttribute('id')) {
+		return '#' + div.getAttribute('id');
+	} else if (div.classList.length > 0) {
+		return '.' + div.classList[0];
+	} else {
+		return '<' + div.tagName + '>';
+	}
+}
+
+function drawDiv(graph,divToDraw,nodeSize=5) {
 	var newKey = nextAvailableKey(graph);
-	var newLabel = concatVec(Object.values(divToDraw.classList));
-	var newNode = graph.addNode(newKey, {label: newLabel, size: 5, color: 'black'});
+	var newLabel = generateDivLabel(divToDraw);
+	var newNode = graph.addNode(newKey, {label: newLabel, size: nodeSize, color: 'black'});
+	graph.setNodeAttribute(newNode,'divSRC',wrapperHTML(divToDraw));
+
 	return newNode;
 }
 
@@ -83,25 +95,24 @@ function connectToSet(graph,sourceNode,set,sizeToSet=1,colorToSet='black') {
 	}
 }
 
-function mapRecursive(graph,rootDiv,rootNode,parentX,parentY,radius,startAngle) {
+function mapRecursive(graph,rootDiv,rootNode,parentX,parentY,radius,spin,nodeSize=5) {
 	var allChildren = rootDiv.children;
 	if (allChildren.length == 0) {
-		console.log('leaf');
 		return [];
 	} else {
 		var drawnNodes = [];
+		const sizeReduction = 1.25;
 		for (var i=0; i<allChildren.length; i++) {
 			var currChild = allChildren[i];
-			var currDrawnNode = drawDiv(graph,currChild);
+			var currDrawnNode = drawDiv(graph,currChild,nodeSize);
 			drawnNodes.push(currDrawnNode);
 
-			const angle = (i / Math.max(...[allChildren.length-1,1])) * (1 * Math.PI) + startAngle + (Math.PI / 2);
-			console.log(startAngle);
+			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (.5 * Math.PI)) + spin;
 
 		    graph.setNodeAttribute(currDrawnNode, "x", parentX + (radius * Math.cos(angle)));
 		    graph.setNodeAttribute(currDrawnNode, "y", parentY + (radius * Math.sin(angle)));
 
-			var childNodes = mapRecursive(graph,currChild,currDrawnNode,parentX + (radius * Math.cos(angle)),parentY + (radius * Math.sin(angle)), radius/1.5, angle);
+			var childNodes = mapRecursive(graph,currChild,currDrawnNode,parentX + (radius * Math.cos(angle)),parentY + (radius * Math.sin(angle)), radius/1.5, spin, nodeSize/sizeReduction);
 		}
 		connectToSet(graph,rootNode,drawnNodes);
 
@@ -109,28 +120,29 @@ function mapRecursive(graph,rootDiv,rootNode,parentX,parentY,radius,startAngle) 
 	}
 }
 
-function mapWithRoot(graph,rootDiv,rootName='body') {
-	var rootNode = drawDiv(graph,rootDiv);
+function mapWithRoot(graph,rootDiv,rootName='body',nodeSize=10) {
+	var rootNode = drawDiv(graph,rootDiv,nodeSize);
 	graph.setNodeAttribute(rootNode,'label',rootName);
 	graph.setNodeAttribute(rootNode,'x',0);
 	graph.setNodeAttribute(rootNode,'y',0);
 	var allChildren = rootDiv.children;
 	
 	if (allChildren.length == 0) {
-		console.log('leaf');
 		return [];
 	} else {
 		var drawnNodes = [];
+		const spin = -((Math.PI / 4) + (Math.PI / 2));
+		const sizeReduction = 1.25;
 		for (var i=0; i<allChildren.length; i++) {
 			var currChild = allChildren[i];
-			var currDrawnNode = drawDiv(graph,currChild);
+			var currDrawnNode = drawDiv(graph,currChild,nodeSize/sizeReduction);
 			drawnNodes.push(currDrawnNode);
 
-			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (1 * Math.PI));
+			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (.5 * Math.PI)) + spin;
 		    graph.setNodeAttribute(currDrawnNode, "x", 0 + (100 * Math.cos(angle)));
 		    graph.setNodeAttribute(currDrawnNode, "y", 0 + (100 * Math.sin(angle)));
 		    
-			var childNodes = mapRecursive(graph,currChild,currDrawnNode,0,0,(100/1.5),angle);
+			var childNodes = mapRecursive(graph,currChild,currDrawnNode,0 + (100 * Math.cos(angle)),0 + (100 * Math.sin(angle)),(100/1.5),spin,nodeSize/(sizeReduction ** 2));
 			
 		}
 		connectToSet(graph,rootNode,drawnNodes); 
@@ -146,12 +158,23 @@ function mapWithRoot(graph,rootDiv,rootName='body') {
 	}
 }
 
+function wrapperHTML(div) {
+	var outer = div.outerHTML;
+	var inner = div.innerHTML;
+	var wrapper = outer.replace(inner,'');
+	return wrapper;
+}
+
+/* page setup */
+
+var pageOverview = document.getElementById('arborist-full-container');
+pageOverview.style.height = numToStyle(window.innerHeight,'px');
+
 /* create the graph */
 const graph = new graphology.Graph();
 var graphContainer = document.getElementById('main-tree-container');
-graphContainer.style.height = numToStyle(window.innerHeight,'px');
 
-const sigmaInstance = new Sigma(graph, graphContainer);
+var sigmaInstance = new Sigma(graph, graphContainer);
 
 
 /* get the divs */
@@ -159,17 +182,14 @@ var root = document.getElementById('parent-row');
 var rootNode = mapWithRoot(graph,root);
 graph.setNodeAttribute(rootNode,'color','red');
 
+const htmlReadout = document.getElementById('primary-html-readout');
 
-
-/*
-graph.nodes().forEach((node, i) => {
-	console.log(node.x);
-	
-    const angle = (i * 2 * Math.PI) / graph.order;
-    graph.setNodeAttribute(node, "x", 100 * Math.cos(angle));
-    graph.setNodeAttribute(node, "y", 100 * Math.sin(angle));
+sigmaInstance.on("enterNode", ({ node }) => {
+	var attrTable = graph.getNodeAttributes(node);
+	htmlReadout.textContent = attrTable['divSRC'];
     
 });
-*/
+
+
 
 
