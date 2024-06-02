@@ -224,4 +224,58 @@ fetch('https://rvest.tidyverse.org/', {
         console.log('Failed to fetch page: ', err);  
     });
 
+const triggerButton = document.getElementById('url-submit-button');
+const urlField = document.getElementById('url-entry-field');
+
+triggerButton.onclick = function() {
+	var searchTerm = urlField.value;
+	urlField.value = '';
+	sigmaInstance.graph.clear();
+	fetch(searchTerm, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+        },
+    })
+	.then(function(response) {
+        // When the page is loaded convert it to text
+        return response.text()
+    })
+    .then(function(html) {
+        // Initialize the DOM parser
+        var parser = new DOMParser();
+
+        // Parse the text
+        var doc = parser.parseFromString(html, "text/html");
+
+        // You can now even select part of that html as you would in the regular DOM 
+        // Example:
+        // var docArticle = doc.querySelector('article').innerHTML;
+
+        var scrape = doc;
+        console.log(document);
+        console.log(scrape);
+
+        /* get the divs */
+		var root = scrape.getElementsByTagName('body')[0];
+		console.log(root);
+		var rootNode = mapWithRoot(graph,root);
+		graph.setNodeAttribute(rootNode,'color','red');
+
+		sigmaInstance.on("enterNode", ({ node }) => {
+			var attrTable = graph.getNodeAttributes(node);
+			htmlReadout.textContent = attrTable['divSRC'];
+			htmlReadout.style.display = 'block';
+		});
+
+		sigmaInstance.on("leaveNode", ({ node }) => {
+			htmlReadout.textContent = '';
+			htmlReadout.style.display = 'none';
+		});
+    })
+    .catch(function(err) {  
+        console.log('Failed to fetch page: ', err);  
+    });
+}
+
 

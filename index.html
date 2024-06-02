@@ -17,13 +17,24 @@
         <div class="column" id="col-chart">
             <div class="chart-container" id="main-tree-container"></div>
         </div>
-        <div class="main-navigation" id="col-readouts">
+        <div class="main-navigation" id="col-input">
             <div class='panel' id='title-panel'>
                 <i class="fa-solid fa-code-branch"></i>
                 Arborist
                 <i class="fa-brands fa-pagelines"></i>
             </div>
+            <div class='panel' id='input-url-panel'>
+                <input type="text" id="url-entry-field" name="url-entry" placeholder="https://rvest.tidyverse.org/"><br><br>
+            </div>
+            <button id="url-submit-button">GO <i class="fa-solid fa-seedling"></i></button>
+        </div>
+        <div class="readouts" id="col-readouts">
             <div class='panel html-readout' id='primary-html-readout'></div>
+            <div class='panel site-readout' id='site-details'>
+                <p class="site-details-header">On Screen</p>
+                <p class="site-details-name"></p>
+                <p class="site-details-url"></p>
+            </div>
         </div>
     </div>
     <div class="row align-items-start body-row" id='parent-row'>
