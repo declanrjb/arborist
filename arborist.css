@@ -14,7 +14,7 @@
 }
 
 #primary-html-readout {
-	display: block;
+	display: none;
 }
 
 .panel {
@@ -45,13 +45,18 @@
 }
 
 #input-url-panel {
-	height: 60px;
+	height: 50px;
+	padding: 5px;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 
 #url-entry-field {
 	height: 100%;
 	width: 100%;
 	padding-left: 5px;
+	border: none;
+	outline: none;
 }
 
 #url-submit-button {
@@ -80,8 +85,25 @@
 	width: 20%;
 }
 
-.site-details-header {
+#arborist-full-container {
+	width: 100%;
+}
+
+.site-details {
+	margin-bottom: 0px;
 	font-family: monospace;
 	font-size: .9em;
+}
+
+#site-details-name {
+	font-style: italic;
+}
+
+#site-details-header {
+	font-weight: bold;
+}
+
+#searching-spinner {
+	display: none;
 }
 

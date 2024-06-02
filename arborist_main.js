@@ -107,12 +107,12 @@ function mapRecursive(graph,rootDiv,rootNode,parentX,parentY,radius,spin,nodeSiz
 			var currDrawnNode = drawDiv(graph,currChild,nodeSize);
 			drawnNodes.push(currDrawnNode);
 
-			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (Math.PI / 1.5)) + spin;
+			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (Math.PI / 2)) - (Math.PI/4);
 
-		    graph.setNodeAttribute(currDrawnNode, "x", parentX + (radius * Math.cos(angle)));
-		    graph.setNodeAttribute(currDrawnNode, "y", parentY + (radius * Math.sin(angle)));
+		    graph.setNodeAttribute(currDrawnNode, "x", parentX + (radius * Math.tan(angle)));
+		    graph.setNodeAttribute(currDrawnNode, "y", parentY + (radius));
 
-			var childNodes = mapRecursive(graph,currChild,currDrawnNode,parentX + (radius * Math.cos(angle)),parentY + (radius * Math.sin(angle)), radius/1.5, spin, nodeSize/sizeReduction);
+			var childNodes = mapRecursive(graph,currChild,currDrawnNode,parentX + (radius * Math.tan(angle)),parentY + (radius), Math.sqrt(radius), spin, nodeSize/sizeReduction);
 		}
 		connectToSet(graph,rootNode,drawnNodes);
 
@@ -126,6 +126,7 @@ function mapWithRoot(graph,rootDiv,rootName='body',nodeSize=10) {
 	graph.setNodeAttribute(rootNode,'x',0);
 	graph.setNodeAttribute(rootNode,'y',0);
 	var allChildren = rootDiv.children;
+	var topRadius = 10;
 	
 	if (allChildren.length == 0) {
 		return [];
@@ -133,16 +134,19 @@ function mapWithRoot(graph,rootDiv,rootName='body',nodeSize=10) {
 		var drawnNodes = [];
 		const spin = -((Math.PI / 3) + (Math.PI / 2));
 		const sizeReduction = 1.25;
+		console.log(allChildren);
 		for (var i=0; i<allChildren.length; i++) {
 			var currChild = allChildren[i];
 			var currDrawnNode = drawDiv(graph,currChild,nodeSize/sizeReduction);
 			drawnNodes.push(currDrawnNode);
 
-			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (Math.PI / 1.5)) + spin;
-		    graph.setNodeAttribute(currDrawnNode, "x", 0 + (100 * Math.cos(angle)));
-		    graph.setNodeAttribute(currDrawnNode, "y", 0 + (100 * Math.sin(angle)));
+			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (Math.PI / 2)) - (Math.PI / 4);
+		    graph.setNodeAttribute(currDrawnNode, "x", 0 + (topRadius * Math.tan(angle)));
+		    console.log(angle);
+		    console.log(0 + (topRadius * Math.tan(angle)));
+		    graph.setNodeAttribute(currDrawnNode, "y", 0 + (topRadius));
 		    
-			var childNodes = mapRecursive(graph,currChild,currDrawnNode,0 + (100 * Math.cos(angle)),0 + (100 * Math.sin(angle)),(100/1.5),spin,nodeSize/(sizeReduction ** 2));
+			var childNodes = mapRecursive(graph,currChild,currDrawnNode,0 + (topRadius * Math.tan(angle)),0 + (topRadius),Math.sqrt(topRadius),spin,nodeSize/(sizeReduction ** 2));
 			
 		}
 		connectToSet(graph,rootNode,drawnNodes); 
@@ -165,6 +169,86 @@ function wrapperHTML(div) {
 	return wrapper;
 }
 
+function cleanURL(url) {
+	/*
+	if (!url.includes('www')) {
+		const splitForm = url.split('.');
+		if (splitForm.length != 3) {
+			url = 'www.' + url;
+		}
+	}
+
+	if (!url.includes('https://')) {
+		url = 'https://' + url;
+	}
+	*/
+
+	url = 'https://agile-basin-91517-8cd8112fcea7.herokuapp.com/' + url;
+
+	return url;
+}
+
+function updateTree(url) {
+	searchingSpinner.style.display = 'inline';
+	goTag.style.display = 'none';
+	sigmaInstance.graph.clear();
+	var userAddress = url;
+	url = cleanURL(url);
+	fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+        },
+    })
+	.then(function(response) {
+        // When the page is loaded convert it to text
+        return response.text()
+    })
+    .then(function(html) {
+        // Initialize the DOM parser
+        var parser = new DOMParser();
+
+        // Parse the text
+        var doc = parser.parseFromString(html, "text/html");
+
+        // You can now even select part of that html as you would in the regular DOM 
+        // Example:
+        // var docArticle = doc.querySelector('article').innerHTML;
+
+        var scrape = doc;
+        console.log(scrape);
+        siteNameElem.textContent = scrape.title;
+        siteDetailsUrl.textContent = userAddress;
+
+        /* get the divs */
+		var root = scrape.getElementsByTagName('body')[0];
+		var rootNode = mapWithRoot(graph,root);
+		graph.setNodeAttribute(rootNode,'color','red');
+
+		sigmaInstance.on("enterNode", ({ node }) => {
+			var attrTable = graph.getNodeAttributes(node);
+			htmlReadout.textContent = attrTable['divSRC'];
+			htmlReadout.style.display = 'block';
+		});
+
+		sigmaInstance.on("leaveNode", ({ node }) => {
+			htmlReadout.textContent = '';
+			htmlReadout.style.display = 'none';
+		});
+
+		searchingSpinner.style.display = 'none';
+		goTag.style.display = 'inline';
+    })
+    .catch(function(err) {  
+        console.log('Failed to fetch page: ', err);
+        siteNameElem.textContent = '[Error fetching page]';
+        siteDetailsUrl.textContent = url;
+
+        searchingSpinner.style.display = 'none';
+		goTag.style.display = 'inline';  
+    });
+}
+
 /* page setup */
 
 var pageOverview = document.getElementById('arborist-full-container');
@@ -178,51 +262,11 @@ var sigmaInstance = new Sigma(graph, graphContainer);
 
 const htmlReadout = document.getElementById('primary-html-readout');
 
-fetch('https://rvest.tidyverse.org/', {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-        },
-    })
-	.then(function(response) {
-        // When the page is loaded convert it to text
-        return response.text()
-    })
-    .then(function(html) {
-        // Initialize the DOM parser
-        var parser = new DOMParser();
+const siteNameElem = document.getElementById('site-details-name');
+const siteDetailsUrl = document.getElementById('site-details-url');
 
-        // Parse the text
-        var doc = parser.parseFromString(html, "text/html");
-
-        // You can now even select part of that html as you would in the regular DOM 
-        // Example:
-        // var docArticle = doc.querySelector('article').innerHTML;
-
-        var scrape = doc;
-        console.log(document);
-        console.log(scrape);
-
-        /* get the divs */
-		var root = scrape.getElementsByTagName('body')[0];
-		console.log(root);
-		var rootNode = mapWithRoot(graph,root);
-		graph.setNodeAttribute(rootNode,'color','red');
-
-		sigmaInstance.on("enterNode", ({ node }) => {
-			var attrTable = graph.getNodeAttributes(node);
-			htmlReadout.textContent = attrTable['divSRC'];
-			htmlReadout.style.display = 'block';
-		});
-
-		sigmaInstance.on("leaveNode", ({ node }) => {
-			htmlReadout.textContent = '';
-			htmlReadout.style.display = 'none';
-		});
-    })
-    .catch(function(err) {  
-        console.log('Failed to fetch page: ', err);  
-    });
+const goTag = document.getElementById('input-go');
+const searchingSpinner = document.getElementById('searching-spinner');
 
 const triggerButton = document.getElementById('url-submit-button');
 const urlField = document.getElementById('url-entry-field');
@@ -230,52 +274,14 @@ const urlField = document.getElementById('url-entry-field');
 triggerButton.onclick = function() {
 	var searchTerm = urlField.value;
 	urlField.value = '';
-	sigmaInstance.graph.clear();
-	fetch(searchTerm, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-        },
-    })
-	.then(function(response) {
-        // When the page is loaded convert it to text
-        return response.text()
-    })
-    .then(function(html) {
-        // Initialize the DOM parser
-        var parser = new DOMParser();
-
-        // Parse the text
-        var doc = parser.parseFromString(html, "text/html");
-
-        // You can now even select part of that html as you would in the regular DOM 
-        // Example:
-        // var docArticle = doc.querySelector('article').innerHTML;
-
-        var scrape = doc;
-        console.log(document);
-        console.log(scrape);
-
-        /* get the divs */
-		var root = scrape.getElementsByTagName('body')[0];
-		console.log(root);
-		var rootNode = mapWithRoot(graph,root);
-		graph.setNodeAttribute(rootNode,'color','red');
-
-		sigmaInstance.on("enterNode", ({ node }) => {
-			var attrTable = graph.getNodeAttributes(node);
-			htmlReadout.textContent = attrTable['divSRC'];
-			htmlReadout.style.display = 'block';
-		});
-
-		sigmaInstance.on("leaveNode", ({ node }) => {
-			htmlReadout.textContent = '';
-			htmlReadout.style.display = 'none';
-		});
-    })
-    .catch(function(err) {  
-        console.log('Failed to fetch page: ', err);  
-    });
+	updateTree(searchTerm);
 }
+
+/* demo setup */
+const demoUrl = 'rvest.tidyverse.org';
+
+updateTree(demoUrl);
+
+
 
 
