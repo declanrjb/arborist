@@ -10,6 +10,7 @@
 <script src="https://kit.fontawesome.com/bb1d08a9b2.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/2.4.0/sigma.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/graphology/0.25.4/graphology.umd.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
@@ -24,9 +25,10 @@
                 <i class="fa-brands fa-pagelines"></i>
             </div>
             <div class='panel' id='input-url-panel'>
-                <input type="text" id="url-entry-field" name="url-entry" placeholder="https://rvest.tidyverse.org/"><br><br>
+                <input type="text" id="url-entry-field" name="url-entry" placeholder="rvest.tidyverse.org"><br><br>
             </div>
             <button id="url-submit-button"><i class="fa-solid fa-spinner" id="searching-spinner"></i> <a id="input-go">GO</a> <i class="fa-solid fa-seedling"></i></button>
+            <div class="legend" id="primary-legend"></div>
         </div>
         <div class="readouts" id="col-readouts">
             <div class='panel html-readout' id='primary-html-readout'></div>

@@ -107,3 +107,43 @@
 	display: none;
 }
 
+.legend {
+	width: 400px;
+	height: fit-content;
+	position: fixed;
+	bottom: 0px;
+	right: 0px;
+	margin: 10px;
+}
+
+.legend-item {
+	height: fit-content;
+	width: fit-content;
+	border: none;
+	padding: 2px;
+	padding-top: 0px;
+	padding-right: 10px;
+	padding-left: 10px;
+	border-radius: 10px;
+	margin: 2px;
+	float: right;
+}
+
+.legend-blot {
+	height: 1em;
+	aspect-ratio: 1/1;
+	background-color: black;
+	float: right;
+	margin-top: 4px;
+	margin-left: 5px;
+	border-radius: 2px;
+	display: none;
+}
+
+.legend-text {
+	float: right;
+	font-size: 12px;
+	color: white;
+	font-weight: bold;
+}
+
