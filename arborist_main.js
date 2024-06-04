@@ -298,10 +298,6 @@ function updateTree(url) {
         // Parse the text
         var doc = parser.parseFromString(html, "text/html");
 
-        // You can now even select part of that html as you would in the regular DOM 
-        // Example:
-        // var docArticle = doc.querySelector('article').innerHTML;
-
         var scrape = doc;
         siteNameElem.textContent = scrape.title;
         siteDetailsUrl.textContent = userAddress;
