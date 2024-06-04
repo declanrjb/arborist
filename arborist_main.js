@@ -148,13 +148,6 @@ function mapWithRoot(graph,rootDiv,rootName='body',nodeSize=10) {
 			
 		}
 		connectToSet(graph,rootNode,drawnNodes); 
-		/*
-		for (var k=0; k<drawnNodes.length; k++) {
-			const angle = (k * 2 * Math.PI) / drawnNodes.length;
-		    graph.setNodeAttribute(node, "x",  * Math.cos(angle));
-		    graph.setNodeAttribute(node, "y", i * Math.sin(angle));
-		}
-		*/
 
 		return rootNode;
 	}
@@ -308,7 +301,7 @@ function updateTree(url) {
 
 		sigmaInstance.on("enterNode", ({ node }) => {
 			var attrTable = graph.getNodeAttributes(node);
-			htmlReadout.textContent = attrTable['divTag'];
+			htmlReadout.textContent = attrTable['divSRC'];
 			htmlReadout.style.display = 'block';
 		});
 
