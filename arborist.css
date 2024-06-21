@@ -147,3 +147,10 @@
 	font-weight: bold;
 }
 
+.byline {
+	background-color: black;
+	color: white;
+	width: fit-content;
+	padding-right: 15px;
+}
+

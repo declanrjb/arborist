@@ -108,7 +108,7 @@ function mapRecursive(graph,rootDiv,rootNode,parentX,parentY,radius,spin,nodeSiz
 			var currDrawnNode = drawDiv(graph,currChild,nodeSize);
 			drawnNodes.push(currDrawnNode);
 
-			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (Math.PI / 2)) - (Math.PI/4);
+			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (Math.PI / 2)) - (Math.PI/4) + spin;
 
 		    graph.setNodeAttribute(currDrawnNode, "x", parentX + (radius * Math.tan(angle)));
 		    graph.setNodeAttribute(currDrawnNode, "y", parentY + (radius));
@@ -133,14 +133,14 @@ function mapWithRoot(graph,rootDiv,rootName='body',nodeSize=10) {
 		return [];
 	} else {
 		var drawnNodes = [];
-		const spin = -((Math.PI / 3) + (Math.PI / 2));
+		const spin = 0;
 		const sizeReduction = 1.25;
 		for (var i=0; i<allChildren.length; i++) {
 			var currChild = allChildren[i];
 			var currDrawnNode = drawDiv(graph,currChild,nodeSize/sizeReduction);
 			drawnNodes.push(currDrawnNode);
 
-			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (Math.PI / 2)) - (Math.PI / 4);
+			const angle = ((i / Math.max(...[allChildren.length-1,1])) * (Math.PI / 2)) - (Math.PI / 4) + spin;
 		    graph.setNodeAttribute(currDrawnNode, "x", 0 + (topRadius * Math.tan(angle)));
 		    graph.setNodeAttribute(currDrawnNode, "y", 0 + (topRadius));
 		    
